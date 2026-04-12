@@ -267,7 +267,44 @@ void initReservations() {
     /* TODO Person 2: Add any additional initialization */
 }
 
-int makeReservation(char *userID, char *lotID, TimeWindow slot, char *date) {
+int makeReservation(char *userID, char *lotID, TimeWindow slot, char *date) 
+{
+    //checking if double booked
+    if (isDoubleBooked(userID, slot, date)) 
+    {
+        printf("You already have a reservation at this time!\n");
+        return 0;
+    }
+
+    //checking if lot is full for this slot
+    if (isLotSlotFull(lotID, slot, date)) 
+    {  
+        printf("Sorry, this lot is full for the selected time slot!\n");
+        return 0;
+    }
+
+    //generating unique reservation ID
+    char reservationID[MAX_ID_LEN];
+    sprintf(reservationID, "RES_%d", reservationCount + 1);
+
+    // Creating new reservation and adding to array
+    Reservation newReservation;
+    strcpy(newReservation.reservationID, reservationID);
+    strcpy(newReservation.userID, userID);
+    strcpy(newReservation.lotID, lotID);
+    newReservation.timeSlot = slot;  
+    strcpy(newReservation.date, date);
+    newReservation.status = STATUS_ACTIVE;  
+    newReservation.spaceNumber = -1; 
+    reservations[reservationCount] = newReservation;
+    reservationCount++;
+
+    //updating lot availability
+    updateLotAvailability(lotID,-1);
+
+    //saving to file
+    saveReservationsToFile();
+
     /* TODO Person 2: Implement reservation creation
      * - Call isDoubleBooked() first
      * - Call isLotSlotFull() first
@@ -277,7 +314,7 @@ int makeReservation(char *userID, char *lotID, TimeWindow slot, char *date) {
      * - Save to file
      * - Return 1 on success, 0 on failure
      */
-    return 0;
+    return 1;
 }
 
 int cancelReservation(char *reservationID) {
@@ -317,6 +354,8 @@ void saveReservationsToFile()
         printf("Error: Cannot open reservations.dat for reading!\n");
         return;
     }
+
+    //saving reservations to file
     fwrite(&reservationCount, sizeof(int), 1, file);
     fwrite(reservations, sizeof(Reservation), reservationCount, file);
     fclose(file);
@@ -332,6 +371,8 @@ void loadReservationsFromFile()
         reservationCount = 0;
         return;
     }
+
+    //reading reservations from file
     int result = fread(&reservationCount, sizeof(int), 1, file);
     if (result != 1) 
     {
