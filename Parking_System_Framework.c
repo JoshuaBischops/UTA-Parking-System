@@ -309,12 +309,52 @@ int isLotSlotFull(char *lotID, TimeWindow slot, char *date) {
     return 0;
 }
 
-void saveReservationsToFile() {
-    /* TODO Person 2: Write reservations[] to RESERVATION_FILE using fwrite */
+void saveReservationsToFile() 
+{
+    FILE *file=fopen(RESERVATION_FILE,"wb");
+    if(file==NULL)
+    {
+        printf("Error: Cannot open reservations.dat for reading!\n");
+        return;
+    }
+    fwrite(&reservationCount, sizeof(int), 1, file);
+    fwrite(reservations, sizeof(Reservation), reservationCount, file);
+    fclose(file);
+    printf("Reservations saved to reservations.dat\n");
 }
 
-void loadReservationsFromFile() {
-    /* TODO Person 2: Read from RESERVATION_FILE into reservations[] using fread */
+void loadReservationsFromFile() 
+{
+    FILE *file=fopen(RESERVATION_FILE,"rb");
+    if(file==NULL)
+    {
+        printf("No existing reservations file.\n");
+        reservationCount = 0;
+        return;
+    }
+    int result = fread(&reservationCount, sizeof(int), 1, file);
+    if (result != 1) 
+    {
+        printf("Error reading reservation count!\n");
+        reservationCount = 0;
+        fclose(file);
+        return;
+    }
+    if (reservationCount < 0 || reservationCount > MAX_RESERVATIONS) 
+    {
+        printf("Invalid reservation count in file!\n");
+        reservationCount = 0;
+        fclose(file);
+        return;
+    }
+    int itemsRead = fread(reservations, sizeof(Reservation), reservationCount, file);
+    if (itemsRead != reservationCount) 
+    {
+        printf("Warning: Only read %d of %d reservations\n", itemsRead, reservationCount);
+        reservationCount = itemsRead;
+    }
+    fclose(file);
+    printf("Loaded %d reservations\n", reservationCount);
 }
 
 /* =============================================================================
