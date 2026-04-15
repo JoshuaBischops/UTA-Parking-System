@@ -443,7 +443,6 @@ int addLot(char *lotID, char *lotName, int totalSpaces) {
     LotStatus status;
 } ParkingLot;*/
 
-
 void addTimeWindow(char *lotID, TimeWindow window) {
     /* TODO Person 3: Add an operating time window to a specific lot */
   /*for (int i = 0; i < lotCount; i++) {
@@ -503,13 +502,38 @@ void showLotStatus() {
     /* TODO Person 3: Print status of all lots
      * - Show lotID, name, total/available spaces, status
      */
+    for(int i = 0; i < lotCount; i++){
+        //lotID
+        printf("ID: %s\n", lots[i].lotID);
+        // name 
+        printf("Name: %s\n",lots[i].lotName);
+        // total SPACES
+        printf("Total: %d\n", lots[i].totalSpaces);
+        // total AVAILABLE spaces 
+        printf("Available: %d\n", lots[i].availableSpaces);
 
+        // status update 
+        if (lots[i].status == LOT_AVAILABLE) {
+            printf("Status: AVAILABLE\n");
+        }
+        else {
+            printf("Status: FULL\n");
+        }
+    printf("-----------------------\n");
+    }
 }
 
 int getLotAvailableSpaces(char *lotID, TimeWindow slot, char *date) {
     /* TODO Person 3: Return number of available spaces for a specific slot/date
      * - Should account for existing reservations in that window
      */
+
+
+     for(int i = 0; i < lotCount; i++){
+        if (strcmp(lots[i].lotID,lotID) == 0) {
+            return lots[i].availableSpaces;
+        }
+     }
     return 0;
 }
 
