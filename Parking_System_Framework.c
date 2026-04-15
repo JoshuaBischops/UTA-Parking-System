@@ -416,11 +416,56 @@ int addLot(char *lotID, char *lotName, int totalSpaces) {
      * - Set status to LOT_AVAILABLE
      * - Return 1 on success, 0 if max lots reached
      */
-    return 0;
+     if (lotCount >= MAX_LOTS) {
+        return 0; // returns val of 0 
+     }
+     // takes user input val. and puts it in struct 
+     strcpy(lots[lotCount].lotID, lotID);
+     strcpy(ltos[lotCount].lotName, lotName);
+
+     lots[lotCount].totalSpaces = totalSpaces;
+     lots[lotCount].availableSpaces = toatalSpaces;
+     // implements status/ shows availability //
+     lots[lotCount].status  = LOT_AVAILABLE;
+
+     letCount++;
+     return 1;
+
 }
+ // look back up at struct in order to update this part 
+ /*typedef struct {
+    char lotID[MAX_ID_LEN];
+    char lotName[MAX_NAME_LEN];
+    int totalSpaces;
+    int availableSpaces;
+    TimeWindow windows[MAX_TIME_WINDOWS];
+    int windowCount;
+    LotStatus status;
+} ParkingLot;*/
+
 
 void addTimeWindow(char *lotID, TimeWindow window) {
     /* TODO Person 3: Add an operating time window to a specific lot */
+  /*for (int i = 0; i < lotCount; i++) {
+// find if there is a matching time window 
+
+        if (strcmp(lots[i].lotID , lotID ) == 0){
+
+            // check availability of time window desired 
+            if (lots[i].windowCount >= MAX_TIME_WINDOWS) {
+                printf("no time windows available \n");
+
+                return;
+
+
+
+
+            }
+        }
+
+
+
+    }  */  
 }
 
 int updateLotAvailability(char *lotID, int delta) {
@@ -428,6 +473,29 @@ int updateLotAvailability(char *lotID, int delta) {
      * - Update LotStatus if full or available
      * - Return 1 on success, 0 if lot not found
      */
+    for (int i = 0; i < lotCount; i++){
+        if (strcmp(lots[i].lotID) == 0) {
+            lots[i].availableSpaces +=delta;
+
+            // keeps values in check, outlier check 
+            if (lots[i].availableSpaces < 0)
+            lots[i].availableSpaces = 0;
+
+            if (lots[i].availableSpaces > lots[i].totalSpaces)
+            lots[i].availableSpaces = lots[i].totalSpaces;
+
+            //updates LotSTatus full or available 
+            if (lots[i].availableSpaces == 0) {
+                lots[i].status = LOT_FULL;
+            }
+            else {
+                 lots[i].status = LOT_AVAILABLE;
+            }
+        return 1;
+        
+        }
+     
+    }
     return 0;
 }
 
@@ -435,6 +503,7 @@ void showLotStatus() {
     /* TODO Person 3: Print status of all lots
      * - Show lotID, name, total/available spaces, status
      */
+
 }
 
 int getLotAvailableSpaces(char *lotID, TimeWindow slot, char *date) {
