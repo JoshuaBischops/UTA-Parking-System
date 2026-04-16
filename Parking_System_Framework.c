@@ -411,11 +411,7 @@ void initLots() {
 }
 
 int addLot(char *lotID, char *lotName, int totalSpaces) {
-    /* TODO Person 3: Add a new parking lot to lots[] array
-     * - Initialize availableSpaces = totalSpaces
-     * - Set status to LOT_AVAILABLE
-     * - Return 1 on success, 0 if max lots reached
-     */
+    
      if (lotCount >= MAX_LOTS) {
         return 0; // returns val of 0 
      }
@@ -442,7 +438,19 @@ int addLot(char *lotID, char *lotName, int totalSpaces) {
     int windowCount;
     LotStatus status;
 } ParkingLot;*/
+/*
+ // other struct for specific time intervals 
+ typedef struct {
+ 
+    int startHour; // 0-23
+    int strtMin;  // 0-59
+    it endHour;
+    int endMin; 
 
+    TimeWindow;
+    }
+
+*/
 void addTimeWindow(char *lotID, TimeWindow window) {
     /* TODO Person 3: Add an operating time window to a specific lot */
   /*for (int i = 0; i < lotCount; i++) {
@@ -453,6 +461,7 @@ void addTimeWindow(char *lotID, TimeWindow window) {
             // check availability of time window desired 
             if (lots[i].windowCount >= MAX_TIME_WINDOWS) {
                 printf("no time windows available \n");
+
 
                 return;
 
@@ -468,10 +477,8 @@ void addTimeWindow(char *lotID, TimeWindow window) {
 }
 
 int updateLotAvailability(char *lotID, int delta) {
-    /* TODO Person 3: Update availableSpaces by delta (+1 cancel, -1 reserve)
-     * - Update LotStatus if full or available
-     * - Return 1 on success, 0 if lot not found
-     */
+  
+    // for loop specifically to run delta+ and - 
     for (int i = 0; i < lotCount; i++){
         if (strcmp(lots[i].lotID) == 0) {
             lots[i].availableSpaces +=delta;
@@ -499,9 +506,8 @@ int updateLotAvailability(char *lotID, int delta) {
 }
 
 void showLotStatus() {
-    /* TODO Person 3: Print status of all lots
-     * - Show lotID, name, total/available spaces, status
-     */
+    
+    // shows all data that user is able to see once status is updated 
     for(int i = 0; i < lotCount; i++){
         //lotID
         printf("ID: %s\n", lots[i].lotID);
