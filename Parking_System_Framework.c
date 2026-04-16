@@ -269,6 +269,12 @@ void initReservations() {
 
 int makeReservation(char *userID, char *lotID, TimeWindow slot, char *date) 
 {
+    if (reservationCount >= MAX_RESERVATIONS) 
+    {
+        printf("Error: Reservation limit reached (%d). Cannot make more reservations.\n", MAX_RESERVATIONS);
+        return 0;
+    }
+    
     //checking if double booked
     if (isDoubleBooked(userID, slot, date)) 
     {
@@ -295,7 +301,7 @@ int makeReservation(char *userID, char *lotID, TimeWindow slot, char *date)
     newReservation.timeSlot = slot;  
     strcpy(newReservation.date, date);
     newReservation.status = STATUS_ACTIVE;  
-    newReservation.spaceNumber = -1; 
+    newReservation.spaceNumber = -1; //not assigned yet
     reservations[reservationCount] = newReservation;
     reservationCount++;
 
@@ -349,22 +355,88 @@ int cancelReservation(char *reservationID)
      */
 }
 
-void viewReservations(char *userID) {
+void viewReservations(char *userID) 
+{
+    int found = 0;
+    printf("YOUR ACTIVE RESERVATIONS\n");
+    for (int i = 0; i < reservationCount; i++) 
+    {
+        // Only show active reservations for this user
+        if (strcmp(reservations[i].userID, userID) == 0 && reservations[i].status == STATUS_ACTIVE)
+        {
+            found = 1;
+            printf("Reservation ID: %s\n", reservations[i].reservationID);
+            printf("Lot:           %s\n", reservations[i].lotID);
+            printf("Date:          %s\n", reservations[i].date);
+            printf("Time:          %02d:%02d - %02d:%02d\n", reservations[i].timeSlot.startHour,reservations[i].timeSlot.startMin,reservations[i].timeSlot.endHour,reservations[i].timeSlot.endMin);
+            printf("Space Number:  %d\n", reservations[i].spaceNumber);
+            printf("Status:        ACTIVE\n");
+        }
+    }
+    if (!found) 
+        printf("\nNo active reservations found for user.\n");
     /* TODO Person 2: Print all active reservations for a given userID */
 }
 
-int isDoubleBooked(char *userID, TimeWindow slot, char *date) {
+int isDoubleBooked(char *userID, TimeWindow slot, char *date) 
+{
+    for (int i = 0; i < reservationCount; i++) 
+    {
+        if (strcmp(reservations[i].userID, userID) == 0 && strcmp(reservations[i].date, date) == 0 &&reservations[i].status == STATUS_ACTIVE) 
+        {
+            TimeWindow existing = reservations[i].timeSlot;
+            int newStart = slot.startHour * 60 + slot.startMin;
+            int newEnd = slot.endHour * 60 + slot.endMin;
+            int existStart = existing.startHour * 60 + existing.startMin;
+            int existEnd = existing.endHour * 60 + existing.endMin;
+            if (newStart < existEnd && newEnd > existStart) 
+                return 1; 
+        }
+    }
+    return 0; 
     /* TODO Person 2: Check if user already has a reservation in this time slot
      * - Return 1 if double booked, 0 if clear
      */
-    return 0;
 }
 
-int isLotSlotFull(char *lotID, TimeWindow slot, char *date) {
+int isLotSlotFull(char *lotID, TimeWindow slot, char *date) 
+{
+    int totalSpaces = 0;
+    int lotFound = 0;
+    for (int i = 0; i < lotCount; i++) 
+    {
+        if (strcmp(lots[i].lotID, lotID) == 0) 
+        {
+            totalSpaces = lots[i].totalSpaces;
+            lotFound = 1;
+            break;
+        }
+    }
+    if (!lotFound) 
+    {
+        return 1;  // Lot not found,treated as full
+    }
+    int reservedCount = 0;
+    for (int i = 0; i < reservationCount; i++) 
+    {
+        if (strcmp(reservations[i].lotID, lotID) != 0) 
+            continue;
+        if (strcmp(reservations[i].date, date) != 0) 
+            continue;
+        if (reservations[i].status != STATUS_ACTIVE) 
+            continue;
+        TimeWindow existing = reservations[i].timeSlot;
+        int newStart = slot.startHour * 60 + slot.startMin;
+        int newEnd = slot.endHour * 60 + slot.endMin;
+        int existStart = existing.startHour * 60 + existing.startMin;
+        int existEnd = existing.endHour * 60 + existing.endMin;
+        if (newStart < existEnd && newEnd > existStart) 
+            reservedCount++;
+    }
+    return (reservedCount >= totalSpaces);
     /* TODO Person 2: Check if lot has available spaces for this slot/date
      * - Return 1 if full, 0 if space available
      */
-    return 0;
 }
 
 void saveReservationsToFile() 
@@ -372,7 +444,7 @@ void saveReservationsToFile()
     FILE *file=fopen(RESERVATION_FILE,"wb");
     if(file==NULL)
     {
-        printf("Error: Cannot open reservations.dat for reading!\n");
+        printf("Error: Cannot open reservations.dat for writing!\n");
         return;
     }
 
