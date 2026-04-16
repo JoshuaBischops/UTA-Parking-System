@@ -317,7 +317,29 @@ int makeReservation(char *userID, char *lotID, TimeWindow slot, char *date)
     return 1;
 }
 
-int cancelReservation(char *reservationID) {
+int cancelReservation(char *reservationID) 
+{
+    for (int i = 0; i < reservationCount; i++) 
+    {
+        if (strcmp(reservations[i].reservationID, reservationID) == 0) 
+        {
+            if (reservations[i].status == STATUS_ACTIVE) 
+            {
+                reservations[i].status = STATUS_CANCELLED;
+                updateLotAvailability(reservations[i].lotID, 1);
+                saveReservationsToFile();
+                printf("Reservation %s cancelled successfully.\n", reservationID);
+                return 1;
+            } 
+            else 
+            {
+                printf("Reservation is not active.\n");
+                return 0;
+            }
+        }
+    }
+    printf("Reservation %s not found.\n", reservationID);
+    return 0;
     /* TODO Person 2: Implement cancellation
      * - Find reservation by ID
      * - Set status to STATUS_CANCELLED
@@ -325,7 +347,6 @@ int cancelReservation(char *reservationID) {
      * - Save to file
      * - Return 1 on success, 0 if not found
      */
-    return 0;
 }
 
 void viewReservations(char *userID) {
