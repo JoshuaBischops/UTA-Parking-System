@@ -428,48 +428,37 @@ int addLot(char *lotID, char *lotName, int totalSpaces) {
      return 1;
 
 }
- // look back up at struct in order to update this part 
- /*typedef struct {
-    char lotID[MAX_ID_LEN];
-    char lotName[MAX_NAME_LEN];
-    int totalSpaces;
-    int availableSpaces;
-    TimeWindow windows[MAX_TIME_WINDOWS];
-    int windowCount;
-    LotStatus status;
-} ParkingLot;*/
-/*
- // other struct for specific time intervals 
- typedef struct {
- 
-    int startHour; // 0-23
-    int strtMin;  // 0-59
-    it endHour;
-    int endMin; 
-
-    TimeWindow;
-    }
 
 */
-void addTimeWindow(char *lotID, TimeWindow window) {
-    /* TODO Person 3: Add an operating time window to a specific lot */
-  /*for (int i = 0; i < lotCount; i++) {
-// find if there is a matching time window 
+void addTimeWindow(char *lotID, TimeWindow window) 
+{
+  for (int i = 0; i < lotCount; i++) 
+  {
+// find if there is a matching time lot 
 
         if (strcmp(lots[i].lotID , lotID ) == 0){
 
             // check availability of time window desired 
             if (lots[i].windowCount >= MAX_TIME_WINDOWS) {
-                printf("no time windows available \n");
-
-
+                printf("No time windows available \n");
                 return;
-
-
-
-
             }
+
+            // add new time window 
+            lots[i].windows[lots[i].windowCount] = window;
+
+            //increase window count after window added (update)
+            lots[i].windowCount++;
+
+            printf("Time window added successfully!.\n");
+            return;
+
+
         }
+
+        // if no lot is found 
+        printf("Lot not found. \n");
+
 
 
 
@@ -530,10 +519,7 @@ void showLotStatus() {
 }
 
 int getLotAvailableSpaces(char *lotID, TimeWindow slot, char *date) {
-    /* TODO Person 3: Return number of available spaces for a specific slot/date
-     * - Should account for existing reservations in that window
-     */
-
+   
 
      for(int i = 0; i < lotCount; i++){
         if (strcmp(lots[i].lotID,lotID) == 0) {
@@ -545,10 +531,43 @@ int getLotAvailableSpaces(char *lotID, TimeWindow slot, char *date) {
 
 void saveLotsToFile() {
     /* TODO Person 3: Write lots[] to LOT_FILE using fwrite */
+
+
+    FILE *fp = fopen("lots.dat", "wb")
+
+    if (fp == NULL){
+        printf(" Error!");
+        return;
+
+
+        // number of lots to file 
+        fwrite(&lotCount, sizeof(int), 1, fp);
+
+        // fwrite to array 
+        fwrite(lots, sizeof(ParkingLot), lotCount, fp);
+
+        fclose(fp);
+    }
 }
 
 void loadLotsFromFile() {
     /* TODO Person 3: Read from LOT_FILE into lots[] using fread */
+
+    FILE *fp = fopen("lots.dat", "rb");
+
+    if (fp == NULL) {
+        return;
+
+    }
+
+    // read the number of lots 
+    fread(&lotCount, sizeof(int), 1, fp);
+
+    // read the lots in array 
+    fread(lots, sizeof(ParkingLot), lotCount, fp);
+
+    fclose(fp);
+
 }
 
 /* =============================================================================
