@@ -986,6 +986,48 @@ void runFullSystemTest() {                                      /* 10-step autom
 
     printDivider();
     printf("  Results: %d passed, %d failed\n", pass, fail);
+
+    /* Cleanup — remove test lot, user, and reservations from global arrays and resave */
+    printDivider();
+    printf("  Cleaning up test data...\n");
+
+    /* Remove LOT_T1 from lots[] */
+    for (int i = 0; i < lotCount; i++) {
+        if (strcmp(lots[i].lotID, "LOT_T1") == 0) {
+            for (int j = i; j < lotCount - 1; j++)
+                lots[j] = lots[j + 1];
+            lotCount--;
+            break;
+        }
+    }
+    saveLotsToFile();
+
+    /* Remove TST001 from users[] */
+    for (int i = 0; i < userCount; i++) {
+        if (strcmp(users[i].userID, "TST001") == 0) {
+            for (int j = i; j < userCount - 1; j++)
+                users[j] = users[j + 1];
+            userCount--;
+            break;
+        }
+    }
+    saveUsersToFile();
+
+    /* Remove any reservations tied to TST001 or LOT_T1 */
+    int i = 0;
+    while (i < reservationCount) {
+        if (strcmp(reservations[i].userID, "TST001") == 0 ||
+            strcmp(reservations[i].lotID,  "LOT_T1") == 0) {
+            for (int j = i; j < reservationCount - 1; j++)
+                reservations[j] = reservations[j + 1];
+            reservationCount--;
+        } else {
+            i++;
+        }
+    }
+    saveReservationsToFile();
+
+    printf("  Test data removed. System state restored.\n");
 }
 
 /* =============================================================================
